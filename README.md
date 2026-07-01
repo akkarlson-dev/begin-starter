@@ -40,9 +40,14 @@ Your data never leaves your Google account. The only external call is to the Ant
 
 ## What you need
 
-- Google account (the one that owns your Drive)
-- Anthropic API key — [platform.anthropic.com](https://platform.anthropic.com) → API Keys. Light use runs ~$1-5/month.
-- VS Code with the Claude Code extension installed
+**Google account — free**
+A standard Google account is all you need. The pipeline runs on Google Forms, Sheets, Drive, and Apps Script — all free. You do not need Google One AI Premium or any paid Google tier for this.
+
+**Anthropic account — ~$5 to start, ~$1-5/month**
+Go to [platform.anthropic.com](https://platform.anthropic.com), create an account, add a credit card, and buy a small credit top-up ($5 covers months of light pipeline use). Then create an API key. This account covers two things: the pipeline script (Claude Haiku enriches your captures) and Claude Code in VS Code (which walks you through setup).
+
+**VS Code — free**
+Download at [code.visualstudio.com](https://code.visualstudio.com). Install the Claude Code extension from the VS Code marketplace. Sign in with your Anthropic account.
 
 ---
 
