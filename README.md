@@ -1,6 +1,6 @@
 # iN Starter Kit
 
-A personal capture pipeline. Built by Amy Karlson, packaged for people she trusts.
+A personal capture pipeline. Built by Amy Karlson.
 
 You get a Google Form on your iPhone home screen, a Drive folder for screenshots and voice transcripts, and a script that enriches everything with Claude Haiku every 15 minutes and writes it to a Google Sheet.
 
@@ -51,6 +51,20 @@ Download at [code.visualstudio.com](https://code.visualstudio.com). Install the 
 
 ---
 
+## Getting your form
+
+The fastest path: copy Amy's template. This gives you the three default fields already wired to match `setup.gs`.
+
+[Copy Amy's iN Form →](https://docs.google.com/forms/u/0/d/1yaV5d6cMUVsQKQ-dk3PVlK-oy1wxQ7NmiVzrKzqmHc8/copy)
+
+Click **Make a copy**, rename the form, swap out the tag options for your own categories. That's it.
+
+**Important:** if you rename any field labels, update `CONFIG.formFields` in `setup.gs` to match exactly. The pipeline finds your columns by name.
+
+Want to build your own form from scratch instead? The CLAUDE.md setup conversation will walk you through it.
+
+---
+
 ## Three steps
 
 1. Clone this repo and open the folder in VS Code
@@ -77,11 +91,6 @@ If you dictate long captures using WhisperSpeak, Superwhisper, or a similar tool
 
 ---
 
-## Pilot
-
-This went to five people first: Chris, Ben, Sarah, Arturo, James.
-
----
 
 *iN / begiN · Amy K. Karlson · July 2026*
 *[beginin.substack.com](https://beginin.substack.com)*

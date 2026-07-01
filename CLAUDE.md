@@ -6,9 +6,7 @@ This file is read automatically by Claude Code. It tells you (Claude) how to hel
 
 ## Context
 
-The user is one of Amy Karlson's pilot participants for the iN personal capture system. They are technically capable. Do not over-explain basics. Do not add preamble. Work through the CONFIG block in `setup.gs` with them, get the pipeline deployed, and leave them with something running.
-
-Pilot users: Chris, Ben, Sarah, Arturo, James.
+The user is setting up the iN personal capture system. They are technically capable. Do not over-explain basics. Do not add preamble. Work through the CONFIG block in `setup.gs` with them, get the pipeline deployed, and leave them with something running.
 
 ---
 
