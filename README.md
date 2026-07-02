@@ -57,9 +57,19 @@ Download at [code.visualstudio.com](https://code.visualstudio.com). Install the 
 
 ---
 
+## Never used VS Code or Claude Code before?
+
+If your AI experience so far is ChatGPT for writing or editing text, this is a different kind of tool. VS Code is a code editor, a program for viewing and working in files, not a chat window. Claude Code is an extension that runs inside it.
+
+The difference that matters here: instead of you copying answers out of a chat and pasting them into files yourself, Claude Code reads your files directly, edits them, and runs commands, while you watch and approve each step. You're not prompting it from a blank slate. The moment you open this folder, it reads `CLAUDE.md` and already knows the job: get your pipeline running. It will ask you the setup questions below and do the actual typing into `setup.gs` and Google Apps Script for you.
+
+One thing to expect: it will pause and ask permission before changing a file or running a command, especially the first few times. That's normal. Approve it and it keeps going.
+
+---
+
 ## Getting your form
 
-The fastest path: copy Amy's template. This gives you the three default fields already wired to match `setup.gs`.
+The fastest path: copy Amy's template. This gives you the two default fields already wired to match `setup.gs`.
 
 [Copy Amy's iN Form →](https://docs.google.com/forms/u/0/d/1yaV5d6cMUVsQKQ-dk3PVlK-oy1wxQ7NmiVzrKzqmHc8/copy)
 
@@ -81,7 +91,7 @@ Want to build your own form from scratch instead? The CLAUDE.md setup conversati
 
 ## Three ways to capture
 
-**Form** — the main path. Tap the iN icon on your home screen, fill three fields, submit. Works anywhere, no app install required.
+**Form** — the main path. Tap the iN icon on your home screen, fill two fields, submit. Works anywhere, no app install required.
 
 **Drive drop** — for screenshots, photos, PDFs, and voice transcripts. On iPhone: Share → Save to Files → Google Drive → IN/captures. The pipeline picks up anything dropped here.
 
