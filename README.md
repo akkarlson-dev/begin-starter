@@ -57,11 +57,9 @@ Download at [code.visualstudio.com](https://code.visualstudio.com). Install the 
 
 ---
 
-## Never used VS Code or Claude Code before?
+## If it's been a while since you've had an AI agent touch actual files
 
-If your AI experience so far is ChatGPT for writing or editing text, this is a different kind of tool. VS Code is a code editor, a program for viewing and working in files, not a chat window. Claude Code is an extension that runs inside it.
-
-The difference that matters here: instead of you copying answers out of a chat and pasting them into files yourself, Claude Code reads your files directly, edits them, and runs commands, while you watch and approve each step. You're not prompting it from a blank slate. The moment you open this folder, it reads `CLAUDE.md` and already knows the job: get your pipeline running. It will ask you the setup questions below and do the actual typing into `setup.gs` and Google Apps Script for you.
+This moves fast enough that even recent hands-on experience goes stale in months, so a quick orientation regardless of your background. Claude Code, running inside VS Code, is not a chat window: it reads your files directly, edits them, and runs commands on your machine, with you watching and approving each step. You're not prompting it from a blank slate, either. The moment you open this folder, it reads `CLAUDE.md` and already knows the job: get your pipeline running. It will ask you the setup questions below and do the actual typing into `setup.gs` and Google Apps Script for you.
 
 One thing to expect: it will pause and ask permission before changing a file or running a command, especially the first few times. That's normal. Approve it and it keeps going.
 
