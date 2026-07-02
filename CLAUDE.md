@@ -92,6 +92,8 @@ Once the pipeline is running, show them where things land:
 
 Then stop. Leave them to use it for a week before adding anything.
 
+If they come back later asking for more (journal scanning, forwarding email into the pipeline, better handling for long voice dictation), each of those is sketched out in `setup.gs` under **OPTIONAL EXTENSIONS** at the bottom of the file — a real pattern from Amy's own pipeline to adapt, not a from-scratch design problem.
+
 ---
 
 *Built by Amy K. Karlson · iN / begiN · July 2026*

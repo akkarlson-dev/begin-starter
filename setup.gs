@@ -334,7 +334,24 @@ function getCapturesFolder() {
   return parent.createFolder(CONFIG.capturesFolderName);
 }
 
-// ── OPTIONAL EXTENSION: Journal OCR ───────────────────────────────────────────
-// Amy uses this to process handwritten journal scans (PDF → Claude vision → tasks + gems).
-// Not included in v1. Ask Amy or see pkm-system/scripts/journal_trigger.gs for the full
-// implementation if you want to add this capability.
+// ── OPTIONAL EXTENSIONS ───────────────────────────────────────────────────────
+// None of this is included in v1. Each is a real, working pattern from Amy's
+// own pipeline — ask Claude to build it in when you're ready, pointing it at
+// pkm-system/scripts/in_heartbeat.gs for the reference implementation to adapt.
+//
+// Journal OCR — handwritten journal pages (PDF) → Claude vision → tasks + gems.
+// See in_heartbeat.gs's processFile/callClaude and the PROMPT constant for the
+// extraction prompt and the Drive-folder polling pattern.
+//
+// Email-forward capture — forward a newsletter or email to a Gmail plus-alias
+// of your own account (e.g. you+in@gmail.com), a Gmail filter labels it on
+// arrival, and Apps Script's built-in GmailApp service reads that label on
+// the same 15-minute trigger this pipeline already uses. No new account and
+// no third-party service — the destination just has to be Gmail. This is a
+// new function alongside processFormResponses, not a rewrite of anything here.
+//
+// Long-form voice — the Drive-drop path above already handles short voice
+// transcripts as .txt files fine. For long, rambling dictation, consider
+// having Claude chunk the transcript into multiple captures instead of one
+// giant blob, so each idea lands as its own row instead of one entry with
+// everything blended together.

@@ -107,6 +107,12 @@ If you dictate long captures using WhisperSpeak, Superwhisper, or a similar tool
 
 ---
 
+## Want more than v1?
+
+This kit is deliberately minimal — a form, a Drive folder, and one classification pass. Journal scanning, forwarding email into the pipeline, and better handling for long dictation are all real patterns Amy already uses, documented at the bottom of `setup.gs` under **OPTIONAL EXTENSIONS**. Ask Claude to build one in once the basics are working for a week or two — don't add anything before then.
+
+---
+
 
 *iN / begiN · Amy K. Karlson · July 2026*
 *[beginin.substack.com](https://beginin.substack.com)*
