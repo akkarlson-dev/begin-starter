@@ -20,8 +20,8 @@ const CONFIG = {
   // The name of the captures subfolder inside your Drive folder
   capturesFolderName: 'captures',
 
-  // Your tag / category list — must match your form dropdown exactly
-  categories: ['To Do', 'Goal', 'Idea', 'Reminder', 'Resource'],
+  // Your tag / category list — must match your form checkboxes exactly
+  categories: ['To Do', 'Goal', 'Idea', 'Remind', 'Resource', 'Delegate'],
 
   // Your form field names — must match your form exactly
   formFields: {
@@ -29,7 +29,7 @@ const CONFIG = {
     tag:         'Tag?',
   },
 
-  // Claude model for enrichment. Haiku is fast and cheap (~$0.002/capture).
+  // Claude model for classification. Haiku is fast and cheap (~$0.002/capture).
   model: 'claude-haiku-4-5-20251001',
 };
 
@@ -197,7 +197,7 @@ function processCapturesFolder(ss) {
       const text = file.getBlob().getDataAsString();
       if (!text.trim()) continue;
 
-      const enriched = callClaudeText(buildEnrichPrompt(text, '', ''));
+      const enriched = callClaudeText(buildEnrichPrompt(text, ''));
       const id = nextId(captureWs);
       const entryDate = Utilities.formatDate(new Date(file.getDateCreated()), 'UTC', 'yyyy-MM-dd');
 

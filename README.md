@@ -2,7 +2,7 @@
 
 A personal capture pipeline. Built by Amy Karlson.
 
-You get a Google Form on your iPhone home screen, a Drive folder for screenshots and voice transcripts, and a script that enriches everything with Claude Haiku every 15 minutes and writes it to a Google Sheet.
+You get a Google Form on your iPhone home screen, a Drive folder for screenshots and voice transcripts, and a script that reads everything with Claude Haiku every 15 minutes, sorts it (task, idea, gem, question, resource), and writes it to a Google Sheet.
 
 ---
 
@@ -34,7 +34,13 @@ CAPTURE
                          summaries)       items)
 ```
 
-Your data never leaves your Google account. The only external call is to the Anthropic API for enrichment.
+Your data never leaves your Google account. The only external call is to the Anthropic API, which reads and classifies each capture.
+
+## How captures get classified
+
+Every capture gets read by Claude Haiku once, and sorted into a type: task, thought, gem (an insight worth keeping), question, or resource (a link or reference). Tasks also get a size, a rough horizon, and a note on whether it's something you'd do yourself, hand off, or automate.
+
+These categories are Amy's starting point, not a rule. They live in one place: the `buildEnrichPrompt` function in `setup.gs`, in plain English, not code. If your captures are mostly journal entries, or "gem" doesn't mean what you'd call it, or you want photos handled differently than links, edit that prompt. The defaults work out of the box. Change them once you know what you're actually capturing.
 
 ---
 
@@ -44,7 +50,7 @@ Your data never leaves your Google account. The only external call is to the Ant
 A standard Google account is all you need. The pipeline runs on Google Forms, Sheets, Drive, and Apps Script — all free. You do not need Google One AI Premium or any paid Google tier for this.
 
 **Anthropic account — ~$5 to start, ~$1-5/month**
-Go to [platform.anthropic.com](https://platform.anthropic.com), create an account, add a credit card, and buy a small credit top-up ($5 covers months of light pipeline use). Then create an API key. This account covers two things: the pipeline script (Claude Haiku enriches your captures) and Claude Code in VS Code (which walks you through setup).
+Go to [platform.anthropic.com](https://platform.anthropic.com), create an account, add a credit card, and buy a small credit top-up ($5 covers months of light pipeline use). Then create an API key. This account covers two things: the pipeline script (Claude Haiku classifies your captures) and Claude Code in VS Code (which walks you through setup).
 
 **VS Code — free**
 Download at [code.visualstudio.com](https://code.visualstudio.com). Install the Claude Code extension from the VS Code marketplace. Sign in with your Anthropic account.

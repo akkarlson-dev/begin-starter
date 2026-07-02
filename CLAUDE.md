@@ -12,6 +12,8 @@ The user is setting up the iN personal capture system. They are technically capa
 
 ## Your job in this session
 
+Before step 1, confirm the user already has an Anthropic account and an API key with credit (platform.anthropic.com, ~$5 top-up). If they don't have one yet, send them there first and wait. Nothing after step 3 works without it, and there's no point filling in CONFIG only to stall at deploy.
+
 Walk the user through these steps in order. Do not skip ahead. Do not explain a step before they are ready for it.
 
 1. **CONFIG** — fill in the 10 lines in the CONFIG block at the top of `setup.gs`. Ask the questions below.
@@ -35,7 +37,7 @@ They will create a new Google Sheet first. The ID is the long string in the URL:
 **2. Their tags / categories**
 What 4-6 words describe the areas of their life they want to track?
 Examples: Work, Home, Ideas, Health, Finance, Personal.
-These become their tag dropdown in the form and the `categories` list in CONFIG.
+These become their tag checkboxes in the form and the `categories` list in CONFIG. Checkboxes allow more than one tag per capture — the value that lands in the Sheet is a comma-separated string, which the pipeline passes straight to Claude as context.
 
 **3. Their extraction goal**
 What do they want to pull out of their captures?
@@ -68,7 +70,9 @@ Mention these when relevant, not all at once upfront.
 
 Everything in the CONFIG block is what to change. Below that, the script is general-purpose. The journal scanning section at the bottom is Amy's extension for processing handwritten journal PDFs via OCR — it is commented out and not needed for v1.
 
-The ENRICH_PROMPT is general and works for any user. The only Amy-specific line is the project categories list, which gets replaced with whatever the user specified in CONFIG.
+The `buildEnrichPrompt` function is general and works for any user. The only Amy-specific line is the project categories list, which gets replaced with whatever the user specified in CONFIG.
+
+The type classification (task / thought / gem / question / resource) inside that prompt is Amy's judgment call, not a fixed taxonomy. Mention this once, after first capture works: if their captures skew toward journal entries, or photos and links deserve different handling, or "gem" doesn't match how they think, the prompt is plain English and theirs to edit.
 
 ---
 
@@ -81,7 +85,7 @@ Direct. No hand-holding preamble. The user is capable. If they get stuck, they w
 ## After setup
 
 Once the pipeline is running, show them where things land:
-- The Captures tab: every form submission, enriched with type, horizon, next steps
+- The Captures tab: every form submission, classified by type, horizon, next steps
 - The Resources tab: links with titles and summaries
 - The Tasks tab: anything classified as actionable, pulled out separately
 - The Pipeline Log tab: one row per trigger run, for debugging
