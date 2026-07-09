@@ -465,11 +465,11 @@ function buildCalendarHtml(data) {
 
   const cellsHtml = data.cells.map((cell, i) => {
     const classes = ['cal-cell'];
-    if (cell.isToday) classes.push('today');
+    if (cell.isToday) classes.push('active');
     if (cell.isFuture) classes.push('future');
     if (!cell.isFuture && cell.count) classes.push('has-entries');
     const clickAttr = (!cell.isFuture && cell.count) ? ` onclick="toggleDay(${i})"` : '';
-    return `<div class="${classes.join(' ')}" style="${heatStyle(cell)}"${clickAttr}><span class="cal-daynum">${cell.dayNum}</span></div>`;
+    return `<div class="${classes.join(' ')}" data-idx="${i}" style="${heatStyle(cell)}"${clickAttr}><span class="cal-daynum">${cell.dayNum}</span></div>`;
   }).join('');
 
   const entriesByDayJson = JSON.stringify(data.cells.map(c => ({ date: c.date, entries: c.entries }))).replace(/<\/script>/g, '<\\/script>');
@@ -495,7 +495,7 @@ body{background:#09080F;color:#E8E0F0;font-family:-apple-system,BlinkMacSystemFo
 .cal-cell{aspect-ratio:1;border-radius:6px;position:relative}
 .cal-cell.has-entries{cursor:pointer}
 .cal-cell.has-entries:hover{outline:1px solid rgba(255,255,255,0.25)}
-.cal-cell.today{outline:2px solid #d4ff59;outline-offset:1px}
+.cal-cell.active{outline:2px solid #d4ff59;outline-offset:1px}
 .cal-daynum{position:absolute;top:3px;right:4px;font-size:16px;font-weight:600;color:rgba(255,255,255,0.75);text-shadow:0 1px 3px rgba(0,0,0,0.7)}
 .cal-cell.future .cal-daynum{color:rgba(255,255,255,0.3);text-shadow:none}
 .cal-hint{margin-top:10px;font-size:11px;color:rgba(155,142,196,0.4)}
@@ -561,6 +561,10 @@ function toggleDay(i){
   var day=ENTRIES_BY_DAY[i];
   if(!day||!day.entries.length)return;
   if(openIdx===i){closeDayPanel();return;}
+  var prevActive=document.querySelector(".cal-cell.active");
+  if(prevActive)prevActive.classList.remove("active");
+  var cell=document.querySelector('.cal-cell[data-idx="'+i+'"]');
+  if(cell)cell.classList.add("active");
   openIdx=i;
   document.getElementById("dayPanelTitle").textContent=fmtDayHeading(day.date)+" · "+day.entries.length+" "+(day.entries.length===1?"entry":"entries");
   document.getElementById("dayPanelList").innerHTML=day.entries.map(function(e){
@@ -587,23 +591,213 @@ function toggleDay(i){
 </body></html>`;
 }
 
-// ?view=calendar is the only view today, and it's also the default (no
-// param needed) — but the dispatch pattern matches Amy's own pkm-system, so
-// when a future session adds another view (Grouped, Word Cloud, whatever
-// gets asked for), it's a new `else if (view === '...')` branch here, not a
-// rewrite. See README's "Your dashboard" section for how to construct a
-// direct link to a specific view for its own home screen icon.
+// ── TODO VIEW ─────────────────────────────────────────────────────────────────
+// v1, very basic on purpose: one toggle (Everything = all tasks, Todo = open
+// only), a checkbox to mark done/open, and a jump link built from the task
+// text itself (buy/order → Amazon search, research/look up → Google search,
+// an explicit URL always wins). Ported from pkm-system's in_heartbeat.gs
+// (getJumpUrl, markDone/markOpen/_setStatus, getTasksForTodo) and simplified
+// to begin-starter's shorter TASK_COLUMNS schema — no cross-reference back to
+// Captures for resources/search_query, the task text alone is enough for v1.
+
+function getJumpUrl(task, resources, searchQuery) {
+  // 1. Explicit URL in resources column — always wins
+  const resUrl = String(resources || '').match(/https?:\/\/[^\s]+/);
+  if (resUrl) return { url: resUrl[0], label: 'open link' };
+
+  const t = String(task).toLowerCase().trim();
+
+  // 2. Buy/order/get → Amazon
+  if (/^(buy|order|purchase|pick up|get)\b/.test(t)) {
+    const item = task.replace(/^(buy|order|purchase|pick up|get)\s+/i, '').trim();
+    return { url: 'https://www.amazon.com/s?k=' + encodeURIComponent(item), label: 'Amazon' };
+  }
+  // 3. Cancel → search for cancellation page
+  if (/^cancel\b/.test(t)) {
+    const q = searchQuery || task;
+    return { url: 'https://www.google.com/search?q=' + encodeURIComponent(q + ' cancel account'), label: 'search' };
+  }
+  // 4. Book/reserve/schedule → search
+  if (/^(book|reserve|schedule)\b/.test(t)) {
+    const q = searchQuery || task;
+    return { url: 'https://www.google.com/search?q=' + encodeURIComponent(q), label: 'search' };
+  }
+  // 5. Research/look up/find/explore → search
+  if (/^(research|look up|look into|find|explore|investigate|check)\b/.test(t)) {
+    const q = searchQuery || task;
+    return { url: 'https://www.google.com/search?q=' + encodeURIComponent(q), label: 'search' };
+  }
+  // 6. Call/contact/reach out → skip (no useful URL)
+  if (/^(call|text|email|contact|reach out|message)\b/.test(t)) return null;
+
+  // 7. Fallback: use search_query if Claude generated one
+  if (searchQuery) {
+    return { url: 'https://www.google.com/search?q=' + encodeURIComponent(searchQuery), label: 'search' };
+  }
+  return null;
+}
+
+function markDone(rowId) { _setStatus(rowId, 'done'); }
+function markOpen(rowId)  { _setStatus(rowId, 'open'); }
+
+function _setStatus(rowId, status) {
+  const ss = SpreadsheetApp.openById(CONFIG.sheetId);
+  const ws = ss.getSheetByName('Tasks');
+  if (!ws) return;
+  const lastRow = ws.getLastRow();
+  if (lastRow <= 1) return;
+  const ids = ws.getRange(2, 1, lastRow - 1, 1).getValues();
+  for (let i = 0; i < ids.length; i++) {
+    if (String(ids[i][0]) === String(rowId)) {
+      ws.getRange(i + 2, 8).setValue(status); // TASK_COLUMNS[7] = 'status' = column H
+      return;
+    }
+  }
+}
+
+function getTasksForView() {
+  const ss = SpreadsheetApp.openById(CONFIG.sheetId);
+  const ws = ss.getSheetByName('Tasks');
+  if (!ws) return [];
+  const lastRow = ws.getLastRow();
+  if (lastRow <= 1) return [];
+  const data = ws.getRange(2, 1, lastRow - 1, TASK_COLUMNS.length).getValues();
+  return data
+    .filter(r => r[0] && r[3]) // has id and capture text
+    .map(r => ({
+      id:         r[0],
+      created_at: r[1] || '',
+      entry_date: r[2] || '',
+      task:       r[3] || '',
+      next_steps: r[4] || '',
+      horizon:    r[5] || '',
+      size:       r[6] || '',
+      status:     r[7] || 'open',
+    }))
+    .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+}
+
+function buildTodoHtml(tasks) {
+  const rowsJson = JSON.stringify(tasks.map(t => ({
+    id: t.id,
+    task: t.task,
+    next_steps: t.next_steps,
+    horizon: t.horizon,
+    size: t.size,
+    status: t.status,
+    jump: getJumpUrl(t.task, '', ''),
+  }))).replace(/<\/script>/g, '<\\/script>');
+
+  return `<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="apple-touch-icon" href="${IN_ICON_DATA_URI}">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="iN">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="theme-color" content="#0b1810">
+<title>iN — Todo</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#09080F;color:#E8E0F0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+.header{padding:20px 16px 12px;border-bottom:1px solid rgba(255,255,255,0.07)}
+.wordmark{font-size:26px;font-weight:300;letter-spacing:0.06em;color:#FFE9A8}
+.tabs{display:flex;gap:8px;padding:14px 16px 0}
+.tab{padding:8px 16px;border-radius:20px;font-size:14px;letter-spacing:0.02em;background:rgba(255,255,255,0.06);color:rgba(232,224,240,0.6);cursor:pointer}
+.tab.active{background:rgba(212,255,89,0.15);color:#d4ff59}
+.showdone{display:flex;align-items:center;gap:6px;padding:12px 16px 0;font-size:13px;color:rgba(155,142,196,0.7)}
+.list{padding:14px 16px 40px}
+.row{display:flex;gap:12px;padding:16px 0;border-bottom:1px solid rgba(255,255,255,0.06)}
+.row.done .row-task{text-decoration:line-through;color:rgba(232,224,240,0.4)}
+.row-check{width:22px;height:22px;flex:none;margin-top:2px;accent-color:#d4ff59}
+.row-body{flex:1;min-width:0}
+.row-task{font-size:17px;line-height:1.4;word-break:break-word}
+.row-next{font-size:13px;color:rgba(155,142,196,0.65);margin-top:4px}
+.row-meta{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.row-badge{font-size:11px;letter-spacing:0.03em;color:rgba(155,142,196,0.7)}
+.row-jump{font-size:13px;color:#d4ff59;text-decoration:underline;text-underline-offset:2px}
+.empty{padding:40px 16px;color:rgba(155,142,196,0.5);font-size:14px}
+</style>
+</head><body>
+<div class="header"><span class="wordmark">iN Todo</span></div>
+<div class="tabs">
+  <div class="tab active" id="tabEverything" onclick="setMode('everything')">Everything</div>
+  <div class="tab" id="tabTodo" onclick="setMode('todo')">Todo</div>
+</div>
+<div class="showdone" id="showDoneWrap" style="display:none">
+  <input type="checkbox" id="showDone" onchange="render()"><label for="showDone">Show done</label>
+</div>
+<div class="list" id="list"></div>
+<script>
+window.onerror = function(msg, url, line) {
+  document.getElementById('list').innerHTML = '<div style="color:#ff6b6b;padding:20px;font-size:14px">Script error: ' + msg + ' (line ' + line + ')</div>';
+  return false;
+};
+var ROWS = ${rowsJson};
+var mode = 'everything';
+function setMode(m) {
+  mode = m;
+  document.getElementById('tabEverything').className = 'tab' + (m === 'everything' ? ' active' : '');
+  document.getElementById('tabTodo').className = 'tab' + (m === 'todo' ? ' active' : '');
+  document.getElementById('showDoneWrap').style.display = (m === 'todo') ? 'flex' : 'none';
+  render();
+}
+function toggle(id, currentlyDone) {
+  var row = ROWS.filter(function(r){ return String(r.id) === String(id); })[0];
+  if (!row) return;
+  row.status = currentlyDone ? 'open' : 'done';
+  render();
+  if (currentlyDone) google.script.run.markOpen(id); else google.script.run.markDone(id);
+}
+function render() {
+  var showDone = document.getElementById('showDone').checked;
+  var rows = ROWS;
+  if (mode === 'todo' && !showDone) rows = rows.filter(function(r){ return r.status !== 'done'; });
+  if (!rows.length) {
+    document.getElementById('list').innerHTML = '<div class="empty">Nothing here yet.</div>';
+    return;
+  }
+  document.getElementById('list').innerHTML = rows.map(function(r) {
+    var done = r.status === 'done';
+    var jump = r.jump ? '<a class="row-jump" href="' + r.jump.url + '" target="_blank">' + r.jump.label + '</a>' : '';
+    var meta = [];
+    if (r.size) meta.push(r.size);
+    if (r.horizon) meta.push(r.horizon);
+    return '<div class="row' + (done ? ' done' : '') + '">' +
+      '<input class="row-check" type="checkbox" ' + (done ? 'checked' : '') + ' onclick="toggle(\\'' + r.id + '\\', ' + done + ')">' +
+      '<div class="row-body">' +
+        '<div class="row-task">' + r.task.replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</div>' +
+        (r.next_steps ? '<div class="row-next">' + r.next_steps.replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</div>' : '') +
+        '<div class="row-meta">' + meta.map(function(m){ return '<span class="row-badge">' + m + '</span>'; }).join('') + jump + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+render();
+</script>
+</body></html>`;
+}
+
+// ?view=calendar and ?view=todo are the two views today — calendar is the
+// default (no param needed) since it's the more graphical entry point, but
+// the dispatch pattern matches Amy's own pkm-system, so when a future session
+// adds another view (Search, Grouped, whatever gets asked for), it's a new
+// `else if (view === '...')` branch here, not a rewrite. See README's "Your
+// dashboard" section for how to construct a direct link to a specific view
+// for its own home screen icon.
 function doGet(e) {
   try {
     const view = (e && e.parameter && e.parameter.view) || 'calendar';
     let html;
-    if (view === 'calendar') {
+    if (view === 'todo') {
+      html = buildTodoHtml(getTasksForView());
+    } else if (view === 'calendar') {
       html = buildCalendarHtml(getCalendarData());
     } else {
       html = buildCalendarHtml(getCalendarData());
     }
+    const titles = { todo: 'iN — Todo', calendar: 'iN — Calendar' };
     return HtmlService.createHtmlOutput(html)
-      .setTitle('iN — Calendar')
+      .setTitle(titles[view] || 'iN — Calendar')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
   } catch (err) {
     return HtmlService.createHtmlOutput(

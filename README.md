@@ -46,13 +46,13 @@ These categories are Amy's starting point, not a rule. They live in one place: t
 
 ## What you need
 
-**Google account — free**
-A standard Google account is all you need. The pipeline runs on Google Forms, Sheets, Drive, and Apps Script — all free. You do not need Google One AI Premium or any paid Google tier for this.
+**Google account: free**
+A standard Google account is all you need. The pipeline runs on Google Forms, Sheets, Drive, and Apps Script, all free. You do not need Google One AI Premium or any paid Google tier for this.
 
-**Anthropic account — ~$5 to start, ~$1-5/month**
+**Anthropic account: ~$5 to start, ~$1-5/month**
 Go to [platform.anthropic.com](https://platform.anthropic.com), create an account, add a credit card, and buy a small credit top-up ($5 covers months of light pipeline use). Then, in the Console, go to **API Keys** in the left sidebar and click **Create Key**. Copy it somewhere for a minute, you'll paste it into Google Apps Script during setup. This account covers two things: the pipeline script (Claude Haiku classifies your captures) and Claude Code in VS Code (which walks you through setup).
 
-**VS Code — free**
+**VS Code: free**
 Download at [code.visualstudio.com](https://code.visualstudio.com). Install the Claude Code extension from the VS Code marketplace. Sign in with your Anthropic account.
 
 ---
@@ -79,17 +79,17 @@ Click **Make a copy**, rename the form, swap out the tag options for your own ca
 
 Want to build your own form from scratch instead? The CLAUDE.md setup conversation will walk you through it.
 
-**Saving it to your home screen:** don't tap the link directly from wherever you copied it (Mail, Notes, Messages, the form's own confirmation page) — Google's mobile auth blocks those in-app browsers and the link just fails to load or spins, without looking like an obvious error. Instead: copy the URL, open Safari in a **Private** window, paste it into the address bar there, and once it loads correctly, Share → Add to Home Screen. A few extra taps, but it's the version that works reliably. The same trick applies to your Calendar dashboard link below — you'll end up with two icons on your home screen.
+**Saving it to your home screen:** don't tap the link directly from wherever you copied it (Mail, Notes, Messages, the form's own confirmation page). Google's mobile auth blocks those in-app browsers and the link just fails to load or spins, without looking like an obvious error. Instead: copy the URL, open Safari in a **Private** window, paste it into the address bar there, and once it loads correctly, Share → Add to Home Screen. A few extra taps, but it's the version that works reliably. The same trick applies to your Calendar dashboard link below, you'll end up with two icons on your home screen.
 
 ---
 
 ## Your dashboard
 
-Setup deploys a second link alongside the form: a Calendar page showing the real last 5 weeks, darker on days you captured more, with a tap on any day to see exactly what you captured then (task/thought/gem/question/resource, color-coded).
+Setup deploys a second link alongside the form, and it's actually two views off the same script: a Calendar page showing the real last 5 weeks, darker on days you captured more, with a tap on any day to see exactly what you captured then (task/thought/gem/question/resource, color-coded); and a Todo page, everything you've captured with an Everything/Todo toggle, checkboxes to mark things done, and a jump link when a task is actionable (buy/order something → straight to an Amazon search, research/look up/cancel/book something → straight to a Google search, an explicit link in the capture always wins).
 
-It's a Web App deployment of `setup.gs` itself (the `doGet()` function at the bottom) — the CLAUDE.md setup conversation walks you through deploying it, no separate account or service involved.
+It's a Web App deployment of `setup.gs` itself (the `doGet()` function at the bottom). The CLAUDE.md setup conversation walks you through deploying it, no separate account or service involved.
 
-**Finding and constructing your dashboard link:** in Apps Script, go to Deploy → Manage deployments and copy the Web app URL — that's your base link, something like `https://script.google.com/macros/s/AKfyc.../exec`. Append `?view=calendar` to it (e.g. `...exec?view=calendar`) to link directly to the Calendar view. Right now that's the only view and it's also the default, so the bare URL and the `?view=calendar` version show the same thing — but if a future Claude session adds another view (Grouped, Word Cloud, whatever you ask for), it'll follow the same `?view=name` pattern, and you'll construct that link the same way to give it its own home screen icon. Save it to your home screen the same way as the form (see above).
+**Finding and constructing your dashboard links:** in Apps Script, go to Deploy → Manage deployments and copy the Web app URL: that's your base link, something like `https://script.google.com/macros/s/AKfyc.../exec`. Append `?view=calendar` for the Calendar view, or `?view=todo` for the Todo view. The bare URL (no `?view=`) defaults to Calendar. Save each one to your home screen separately the same way as the form (see above), you'll end up with two dashboard icons plus the form. If a future Claude session adds another view (Search, Grouped, whatever you ask for), it'll follow the same `?view=name` pattern.
 
 ---
 
@@ -103,11 +103,11 @@ It's a Web App deployment of `setup.gs` itself (the `doGet()` function at the bo
 
 ## Three ways to capture
 
-**Form** — the main path. Tap the iN icon on your home screen, fill two fields, submit. Works anywhere, no app install required.
+**Form:** the main path. Tap the iN icon on your home screen, fill two fields, submit. Works anywhere, no app install required.
 
-**Drive drop** — for screenshots, photos, PDFs, and voice transcripts. On iPhone: Share → Save to Files → Google Drive → IN/captures. The pipeline picks up anything dropped here.
+**Drive drop:** for screenshots, photos, PDFs, and voice transcripts. On iPhone: Share → Save to Files → Google Drive → IN/captures. The pipeline picks up anything dropped here.
 
-**Links** — paste a URL into the form's "What?" field. The pipeline fetches the page title and a short summary automatically and writes it to the Resources tab.
+**Links:** paste a URL into the form's "What?" field. The pipeline fetches the page title and a short summary automatically and writes it to the Resources tab.
 
 ---
 
@@ -121,7 +121,7 @@ If you dictate long captures using WhisperSpeak, Superwhisper, or a similar tool
 
 ## Want more than v1?
 
-This kit is deliberately minimal — a form, a Drive folder, and one classification pass. Journal scanning, forwarding email into the pipeline, and better handling for long dictation are all real patterns Amy already uses, documented at the bottom of `setup.gs` under **OPTIONAL EXTENSIONS**. Ask Claude to build one in once the basics are working for a week or two — don't add anything before then.
+This kit is deliberately minimal: a form, a Drive folder, and one classification pass. Journal scanning, forwarding email into the pipeline, and better handling for long dictation are all real patterns Amy already uses, documented at the bottom of `setup.gs` under **OPTIONAL EXTENSIONS**. Ask Claude to build one in once the basics are working for a week or two. Don't add anything before then.
 
 ---
 
